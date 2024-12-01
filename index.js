@@ -299,7 +299,12 @@ async function run() {
             const data = req.body;
             const result = await bannerCollection.insertOne(data);
             res.send(result);
-        })
+        });
+
+        app.get('/banner', async (req, res) => {
+            const result = await bannerCollection.find().toArray();
+            res.send(result);
+        });
 
 
 
