@@ -36,6 +36,7 @@ async function run() {
         const photoGalleryCollection = client.db('GloriousSPA').collection('photoGallery');
         const officeHourCollection = client.db('GloriousSPA').collection('officeHour');
         const testimonialCollection = client.db('GloriousSPA').collection('testimonial');
+        const bannerCollection = client.db('GloriousSPA').collection('banners');
 
 
         // package related api 
@@ -288,6 +289,15 @@ async function run() {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             const result = await testimonialCollection.deleteOne(query);
+            res.send(result);
+        });
+
+
+        // banner related api
+
+        app.post('/banner', async (req, res) => {
+            const data = req.body;
+            const result = await bannerCollection.insertOne(data);
             res.send(result);
         })
 
