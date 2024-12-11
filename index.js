@@ -37,6 +37,7 @@ async function run() {
         const officeHourCollection = client.db('GloriousSPA').collection('officeHour');
         const testimonialCollection = client.db('GloriousSPA').collection('testimonial');
         const bannerCollection = client.db('GloriousSPA').collection('banners');
+        const packageSliderCollection = client.db('GloriousSPA').collection('packageSlider');
 
 
         // package related api 
@@ -333,6 +334,50 @@ async function run() {
             const result = await bannerCollection.deleteOne(query);
             res.send(result);
         });
+
+
+        // package slider related api
+
+        app.post('/package-slider', async (req, res) => {
+            const data = req.body;
+            const result = await packageSliderCollection.insertOne(data);
+            res.send(result);
+        })
+
+        app.get('/package-slider', async (req, res) => {
+            const result = await packageSliderCollection.find().toArray();
+            res.send(result);
+        })
+
+        app.get('/package-slider/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await packageSliderCollection.findOne(query);
+            res.send(result);
+        })
+
+        app.put('/package-slider/:id', async (req, res) => {
+            const data = req.body;
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const options = { upsert: true };
+            const updatedInfo = {
+                $set: {
+                    ...data
+                }
+            }
+
+            const result = await packageSliderCollection.updateOne(query, updatedInfo, options);
+            res.send(result);
+        })
+
+        app.delete('/package-slider/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await packageSliderCollection.deleteOne(query);
+            res.send(result);
+        });
+
 
 
 
