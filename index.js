@@ -38,6 +38,7 @@ async function run() {
         const testimonialCollection = client.db('GloriousSPA').collection('testimonial');
         const bannerCollection = client.db('GloriousSPA').collection('banners');
         const packageSliderCollection = client.db('GloriousSPA').collection('packageSlider');
+        const whyChooseUsCollection = client.db('GloriousSPA').collection('why-choose-us');
 
 
         // package related api 
@@ -375,6 +376,49 @@ async function run() {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             const result = await packageSliderCollection.deleteOne(query);
+            res.send(result);
+        });
+
+
+        // why choose us related api
+
+
+        app.post('/choose', async (req, res) => {
+            const reqBody = req.body;
+            const result = await whyChooseUsCollection.insertOne(reqBody);
+            res.send(result);
+        });
+
+        app.get('/choose', async (req, res) => {
+            const result = await whyChooseUsCollection.find().toArray();
+            res.send(result);
+        });
+        app.get('/choose/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await whyChooseUsCollection.findOne(query);
+            res.send(result);
+        });
+
+        app.put('/choose/:id', async (req, res) => {
+            const data = req.body;
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const options = { upsert: true };
+            const updatedInfo = {
+                $set: {
+                    ...data
+                }
+            }
+            const result = await whyChooseUsCollection.updateOne(query, updatedInfo, options);
+            res.send(result);
+        });
+
+
+        app.delete('/choose/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await whyChooseUsCollection.deleteOne(query);
             res.send(result);
         });
 
