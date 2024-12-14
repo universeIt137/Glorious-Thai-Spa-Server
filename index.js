@@ -39,6 +39,7 @@ async function run() {
         const bannerCollection = client.db('GloriousSPA').collection('banners');
         const packageSliderCollection = client.db('GloriousSPA').collection('packageSlider');
         const whyChooseUsCollection = client.db('GloriousSPA').collection('why-choose-us');
+        const contactCollection = client.db('GloriousSPA').collection('contacts');
 
 
         // package related api 
@@ -419,6 +420,60 @@ async function run() {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             const result = await whyChooseUsCollection.deleteOne(query);
+            res.send(result);
+        });
+
+        // contact related api
+
+        app.post('/contact', async (req, res) => {
+            const { name, email, subject, message, phone } = req.body;
+            const data = { name, email, subject, message, phone, status: false };
+            const result = await contactCollection.insertOne(data);
+            res.send(result);
+        });
+
+        app.get('/contact', async (req, res) => {
+            const result = await contactCollection.find().toArray();
+            res.send(result);
+        });
+        app.get('/contact/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await contactCollection.findOne(query);
+            res.send(result);
+        });
+
+        app.put('/contact/:id', async (req, res) => {
+            const data = req.body;
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const options = { upsert: true };
+            const updatedInfo = {
+                $set: {
+                    ...data
+                }
+            }
+            const result = await contactCollection.updateOne(query, updatedInfo, options);
+            res.send(result);
+        });
+
+        app.put('/contact-status/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const options = { upsert: true };
+            const updatedInfo = {
+                $set: {
+                    status: true
+                }
+            }
+            const result = await contactCollection.updateOne(query, updatedInfo, options);
+            res.send(result);
+        });
+
+        app.delete('/contact/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await contactCollection.deleteOne(query);
             res.send(result);
         });
 
