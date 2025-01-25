@@ -38,7 +38,13 @@ async function run() {
         const photoGalleryCollection = client.db('GloriousSPA').collection('photoGallery');
         const officeHourCollection = client.db('GloriousSPA').collection('officeHour');
         const testimonialCollection = client.db('GloriousSPA').collection('testimonial');
+
         const userCollection = client.db('GloriousSPA').collection('users');
+        const bannerCollection = client.db('GloriousSPA').collection('banners');
+        const packageSliderCollection = client.db('GloriousSPA').collection('packageSlider');
+        const whyChooseUsCollection = client.db('GloriousSPA').collection('why-choose-us');
+        const contactCollection = client.db('GloriousSPA').collection('contacts');
+
 
 
         // package related api 
@@ -295,6 +301,7 @@ async function run() {
         });
 
 
+
         // user related api
 
 
@@ -368,7 +375,30 @@ async function run() {
         });
 
 
-        app.put('/user/:id', async (req, res) => {
+        
+
+        // banner related api
+
+        app.post('/banner', async (req, res) => {
+            const data = req.body;
+            const result = await bannerCollection.insertOne(data);
+            res.send(result);
+        });
+
+        app.get('/banner', async (req, res) => {
+            const result = await bannerCollection.find().toArray();
+            res.send(result);
+        });
+
+        app.get('/banner/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await bannerCollection.findOne(query);
+            res.send(result);
+        });
+
+        app.put('/banner/:id', async (req, res) => {
+
             const data = req.body;
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
@@ -378,6 +408,7 @@ async function run() {
                     ...data
                 }
             }
+
 
             const result = await userCollection.updateOne(query, updatedInfo, options);
             res.send(result);
@@ -391,7 +422,159 @@ async function run() {
         app.delete('/testimonial/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
-            const result = await userCollection.deleteOne(query);
+
+            const result = await bannerCollection.updateOne(query, updatedInfo, options);
+            res.send(result);
+        });
+
+        app.delete('/banner/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await bannerCollection.deleteOne(query);
+            res.send(result);
+        });
+
+
+
+
+
+        // package slider related api
+
+        app.post('/package-slider', async (req, res) => {
+            const data = req.body;
+            const result = await packageSliderCollection.insertOne(data);
+            res.send(result);
+        })
+
+
+        app.get('/package-slider', async (req, res) => {
+            const result = await packageSliderCollection.find().toArray();
+            res.send(result);
+        })
+
+        app.get('/package-slider/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await packageSliderCollection.findOne(query);
+            res.send(result);
+        })
+
+        app.put('/package-slider/:id', async (req, res) => {
+            const data = req.body;
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const options = { upsert: true };
+            const updatedInfo = {
+                $set: {
+                    ...data
+                }
+            }
+
+            const result = await packageSliderCollection.updateOne(query, updatedInfo, options);
+            res.send(result);
+        })
+
+        app.delete('/package-slider/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await packageSliderCollection.deleteOne(query);
+            res.send(result);
+        });
+
+
+        // why choose us related api
+
+
+        app.post('/choose', async (req, res) => {
+            const reqBody = req.body;
+            const result = await whyChooseUsCollection.insertOne(reqBody);
+            res.send(result);
+        });
+
+        app.get('/choose', async (req, res) => {
+            const result = await whyChooseUsCollection.find().toArray();
+            res.send(result);
+        });
+        app.get('/choose/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await whyChooseUsCollection.findOne(query);
+            res.send(result);
+        });
+
+        app.put('/choose/:id', async (req, res) => {
+            const data = req.body;
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const options = { upsert: true };
+            const updatedInfo = {
+                $set: {
+                    ...data
+                }
+            }
+            const result = await whyChooseUsCollection.updateOne(query, updatedInfo, options);
+            res.send(result);
+        });
+
+
+        app.delete('/choose/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await whyChooseUsCollection.deleteOne(query);
+            res.send(result);
+        });
+
+        // contact related api
+
+        app.post('/contact', async (req, res) => {
+            const { name, email, subject, message, phone } = req.body;
+            const data = { name, email, subject, message, phone, status: false };
+            const result = await contactCollection.insertOne(data);
+            res.send(result);
+        });
+
+        app.get('/contact', async (req, res) => {
+            const result = await contactCollection.find().toArray();
+            res.send(result);
+        });
+        app.get('/contact/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await contactCollection.findOne(query);
+            res.send(result);
+        });
+
+        app.put('/contact/:id', async (req, res) => {
+            const data = req.body;
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const options = { upsert: true };
+            const updatedInfo = {
+                $set: {
+                    ...data
+                }
+            }
+            const result = await contactCollection.updateOne(query, updatedInfo, options);
+            res.send(result);
+        });
+
+        app.put('/contact-status/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const options = { upsert: true };
+            const updatedInfo = {
+                $set: {
+                    status: true
+                }
+            }
+            const result = await contactCollection.updateOne(query, updatedInfo, options);
+            res.send(result);
+        });
+
+        app.delete('/contact/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await contactCollection.deleteOne(query);
             res.send(result);
         });
 
