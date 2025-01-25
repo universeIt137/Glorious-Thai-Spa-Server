@@ -3,6 +3,7 @@ const app = express();
 const cors = require('cors');
 require('dotenv').config();
 const port = process.env.PORT || 5000;
+const jwt = require("jsonwebtoken")
 
 // middleware  
 app.use(cors());
@@ -12,6 +13,7 @@ app.use(express.json());
 
 
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const { isLogin, isAdmin } = require('./middleware');
 // const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster1.olinusx.mongodb.net/?retryWrites=true&w=majority&appName=Cluster1`;
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster1.olinusx.mongodb.net/?retryWrites=true&w=majority&appName=Cluster1`;
@@ -36,6 +38,7 @@ async function run() {
         const photoGalleryCollection = client.db('GloriousSPA').collection('photoGallery');
         const officeHourCollection = client.db('GloriousSPA').collection('officeHour');
         const testimonialCollection = client.db('GloriousSPA').collection('testimonial');
+        const userCollection = client.db('GloriousSPA').collection('users');
 
 
         // package related api 
@@ -262,8 +265,8 @@ async function run() {
             res.send(result);
         })
 
-        app.get('/testimonial/:id', async(req, res)=>{
-            const id = req.params.id; 
+        app.get('/testimonial/:id', async (req, res) => {
+            const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             const result = await testimonialCollection.findOne(query);
             res.send(result);
@@ -289,7 +292,111 @@ async function run() {
             const query = { _id: new ObjectId(id) };
             const result = await testimonialCollection.deleteOne(query);
             res.send(result);
-        })
+        });
+
+
+        // user related api
+
+
+
+        app.post('/user', async (req, res) => {
+            const data = req.body;
+            const result = await userCollection.insertOne({ ...data, status: false, role: "user" });
+            res.send(result);
+        });
+
+
+
+        app.post('/user-login', async (req, res) => {
+            try {
+                const { email, password } = req.body;
+
+                // Validate input
+                if (!email || !password) {
+                    return res.status(400).json({ message: 'Email and password are required.' });
+                }
+
+                // Find the user with the given email and role as admin
+                const user = await userCollection.findOne({ email, role: "admin" });
+
+                if (!user) {
+                    return res.status(401).json({ message: 'Invalid email or user does not have admin rights.' });
+                }
+
+            
+                // Generate JWT token
+                const token = jwt.sign(
+                    { id: user._id, role: user.role },
+                    "147854785", // Replace with a secure, environment-specific secret key
+                    { expiresIn: '1h' } // Token validity for 1 hour
+                );
+
+                // Return success response with token
+                res.status(200).json({
+                    message: 'Login successful.',
+                    token, // Send token to the client
+                    user: user,
+                    role : user.role
+                });
+            } catch (error) {
+                console.error('Error during login:', error);
+                res.status(500).json({ message: 'An error occurred. Please try again later.' });
+            }
+        });
+
+
+        
+
+
+
+        app.get('/user',isLogin,isAdmin, async (req, res) => {
+            const result = (await userCollection.find().toArray());
+            res.send(result);
+        });
+
+
+
+
+
+
+
+        app.get('/user', isLogin,isAdmin  , async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await userCollection.findOne(query);
+            res.send(result);
+        });
+
+
+        app.put('/user/:id', async (req, res) => {
+            const data = req.body;
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const options = { upsert: true };
+            const updatedInfo = {
+                $set: {
+                    ...data
+                }
+            }
+
+            const result = await userCollection.updateOne(query, updatedInfo, options);
+            res.send(result);
+        });
+
+
+
+
+
+
+        app.delete('/testimonial/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await userCollection.deleteOne(query);
+            res.send(result);
+        });
+
+
+
 
 
 
