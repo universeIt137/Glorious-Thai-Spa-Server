@@ -330,7 +330,7 @@ async function run() {
                     return res.status(401).json({ message: 'Invalid email or user does not have admin rights.' });
                 }
 
-            
+
                 // Generate JWT token
                 const token = jwt.sign(
                     { id: user._id, role: user.role },
@@ -343,7 +343,7 @@ async function run() {
                     message: 'Login successful.',
                     token, // Send token to the client
                     user: user,
-                    role : user.role
+                    role: user.role
                 });
             } catch (error) {
                 console.error('Error during login:', error);
@@ -352,11 +352,12 @@ async function run() {
         });
 
 
-        
 
 
 
-        app.get('/user',isLogin,isAdmin, async (req, res) => {
+        // all user
+
+        app.get('/user', isLogin, isAdmin, async (req, res) => {
             const result = (await userCollection.find().toArray());
             res.send(result);
         });
@@ -365,9 +366,9 @@ async function run() {
 
 
 
+        // user profile
 
-
-        app.get('/user', isLogin,isAdmin  , async (req, res) => {
+        app.get('/user', isLogin, isAdmin, async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             const result = await userCollection.findOne(query);
@@ -375,7 +376,55 @@ async function run() {
         });
 
 
-        
+        const { ObjectId } = require("mongodb");
+
+        app.put("/user/:id", isLogin, isAdmin, async (req, res) => {
+            try {
+                const id = req.params.id;
+                const query = { _id: new ObjectId(id) };
+
+                // Find the current user data
+                const existingUser = await userCollection.findOne(query);
+
+                if (!existingUser) {
+                    return res.status(404).json({ message: "User not found" });
+                }
+
+                // Toggle role between "admin" and "user"
+                const currentRole = existingUser.role;
+                const newRole = currentRole === "admin" ? "user" : "admin";
+
+                // Update the user's role
+                const updateResult = await userCollection.updateOne(
+                    query,
+                    { $set: { role: newRole } },
+                    { upsert: true }
+                );
+
+                if (updateResult.modifiedCount === 0) {
+                    return res.status(400).json({ message: "Role update failed" });
+                }
+
+                res.status(200).json({
+                    message: "User role updated successfully",
+                    updatedRole: newRole,
+                });
+            } catch (error) {
+                console.error(error);
+                res.status(500).json({ message: "Internal server error" });
+            }
+        });
+
+
+
+
+
+
+
+
+
+
+
 
         // banner related api
 
