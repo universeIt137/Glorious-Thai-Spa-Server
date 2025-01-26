@@ -368,9 +368,12 @@ async function run() {
 
         // user profile
 
-        app.get('/user', isLogin, isAdmin, async (req, res) => {
-            const id = req.params.id;
+        app.get('/single-user', isLogin, isAdmin, async (req, res) => {
+            const id = req.headers.id;
             const query = { _id: new ObjectId(id) };
+            const filter = {
+                _id : query
+            }
             const result = await userCollection.findOne(query);
             res.send(result);
         });
@@ -415,13 +418,13 @@ async function run() {
             }
         });
 
-
-
-
-
-
-
-
+        // delete user
+        app.delete("/user/:id", async(req, res) => {
+            let id = req.params.id;
+            const query = { _id: new ObjectId(id) }; 
+            let data = await userCollection.deleteOne(query);
+            res.send(data);
+        })
 
 
 
