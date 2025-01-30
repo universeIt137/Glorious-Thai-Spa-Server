@@ -314,7 +314,7 @@ async function run() {
 
 
 
-        app.post('/user-login', async (req, res) => {
+        app.post('/  ', async (req, res) => {
             try {
                 const { email, password } = req.body;
 
@@ -424,7 +424,9 @@ async function run() {
             const query = { _id: new ObjectId(id) }; 
             let data = await userCollection.deleteOne(query);
             res.send(data);
-        })
+        });
+
+       
 
 
 
@@ -589,6 +591,7 @@ async function run() {
             const result = await contactCollection.find().toArray();
             res.send(result);
         });
+        
         app.get('/contact/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
